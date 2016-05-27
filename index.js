@@ -9,6 +9,8 @@ function addLoadEvent(func){
 		}
 	}
 }
+//设置class为list的高度,因为图片的position为absolute所以.list元素的高度为零
+//如果一个元素的父元素高度为0，那么设置这个元素的margin: auto 0; 不起作用
 function setListHeight(){
 	var list = document.getElementById('list');
 	var imgItem = list.getElementsByTagName('img')[0];
@@ -26,28 +28,48 @@ function setLiIndex(){
 }
 var index = 1;//index表示当前显示的页面,index是一个全局变量
 var timer;
+var untilEvent = {
+	addEvent:function(element,type,hander){
+		if(element.addEventListener){
+			element.addEventListener(type,hander,false);
+		}else if(element.attachEvent){
+			element.attachEvent('on'+type,hander);
+		}else{
+			element['on'+type] = hander;
+		}
+	},
+	getEvent:function(event){
+		return event?event:window.event;
+	},
+	getTarget:function(event){
+		return event.target||event.srcElement;
+	}
+
+};
 function btnClick(){
-	var pre = document.getElementById('pre');
-	var next = document.getElementById('next');
-	pre.onclick = function(){
-		if(index == 1){
-			index = 3;
-		}else{
-			--index;
+	var warp = document.getElementById('warp');
+	untilEvent.addEvent(warp,'click',function(event){
+		var event = untilEvent.getEvent(event);
+		var target = untilEvent.getTarget(event);
+		switch(target.id){
+			case 'pre': if(index == 1){
+					index =3;
+				}else{
+					--index;
+				}
+				anmitate();
+				break;
+			case 'next':if(index == 3){
+				index = 1;
+				}else{
+					++index;
+				}
+				anmitate();
+				break;
 		}
-		stop();
-		anmitate();
-	};
-	next.onclick = function(){
-		if(index == 3){
-			index = 1;
-		}else{
-			++index;
-		}
-		stop();
-		anmitate();
-	};
+	});
 }
+//切换图片的函数
 function anmitate(){
 	var list = document.getElementById('list');
 	var imgs = list.getElementsByTagName('img');
@@ -56,18 +78,18 @@ function anmitate(){
 	var inverTime = 5;//时间间隔
 	var inverOpacity = 1/(whole/inverTime);
 	for(var i = 0;i<imgsLen;i++){
-		imgs[i].style.opacity = 0;
+		 imgs[i].style.opacity = 0;
 	}
-	var ID = setInterval(function(){
-		 var opacityed = parseFloat(imgs[index - 1].style.opacity);
+	var go = function(){
+		var opacityed = parseFloat(imgs[index - 1].style.opacity);
 		if(opacityed < 1){
-			imgs[index-1].style.opacity = opacityed + inverOpacity; 
-		}else{
-			clearInterval(ID);
+			imgs[index-1].style.opacity = opacityed + inverOpacity;
+			setTimeout(go,inverTime);
 		}
-
-	},inverTime);
+	};
+	go();
 }
+//自动切换函数
 function play() {
 	timer = setTimeout(function () {
 	if(index == 3){
@@ -77,19 +99,20 @@ function play() {
 		}
 		anmitate();
      	play();
+     	// 
  }, 3000);
 }
+//停止切换函数,当鼠标点击了左箭头或者右箭头时会取消自动切换，当鼠标从箭头上移开，又开始自动切换
 function stop() {
 	clearTimeout(timer);
 }
-function getBtn(){
-	var pre = document.getElementById('pre');
-	var next = document.getElementById('next');
-	pre.onmouseout = play;
-	next.onmouseout = play;
+function getWarp(){
+	var warp = document.getElementById('warp');
+	warp.onmouseout = play;
+	warp.onmouseover = stop;
 }
 addLoadEvent(setListHeight);
 addLoadEvent(setLiIndex);
 addLoadEvent(btnClick);
 addLoadEvent(play);
-addLoadEvent(getBtn);
+addLoadEvent(getWarp);
