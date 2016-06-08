@@ -69,6 +69,16 @@ function btnClick(){
 		}
 	});
 }
+//减小图片透明度
+function decline(cur,inverTime,inverOpacity){
+	var opacityed = parseFloat(cur.style.opacity);
+	if(opacityed > 0){
+		cur.style.opacity = opacityed-inverOpacity;
+		setTimeout(function(){
+			decline(cur,inverTime,inverOpacity);
+		},inverTime);
+	}
+}
 //切换图片的函数
 function anmitate(){
 	var list = document.getElementById('list');
@@ -77,8 +87,11 @@ function anmitate(){
 	var whole = 300;//切换一张图片用的时间
 	var inverTime = 5;//时间间隔
 	var inverOpacity = 1/(whole/inverTime);
+	// for(var i = 0;i<imgsLen;i++){
+	// 	 imgs[i].style.opacity = 0;
+	// }
 	for(var i = 0;i<imgsLen;i++){
-		 imgs[i].style.opacity = 0;
+		decline(imgs[i],inverTime,inverOpacity);
 	}
 	var go = function(){
 		var opacityed = parseFloat(imgs[index - 1].style.opacity);
