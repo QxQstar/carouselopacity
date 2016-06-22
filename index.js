@@ -124,6 +124,17 @@ function getWarp(){
 	warp.onmouseout = play;
 	warp.onmouseover = stop;
 }
+//函数节流
+function scrollEvent(){
+	untilEvent.addEvent(window,"resize",function(){
+		throttle(setListHeight);
+	});
+}
+function throttle(method,context){
+	clearTimeout(method.Tid);
+	method.Tid = setTimeout(method,70);
+}
+addLoadEvent(scrollEvent);
 addLoadEvent(setListHeight);
 addLoadEvent(setLiIndex);
 addLoadEvent(btnClick);
